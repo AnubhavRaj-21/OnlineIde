@@ -1,15 +1,15 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 # Create your models here.
-class User(models.Model):
-    full_name = models.CharField(max_length=100)
+# class User(models.Model):
+#     full_name = models.CharField(max_length=100)
 
 class Submissions(models.Model):
-    ACCEPTANCE_STATUS={
+    ACCEPTANCE_STATUS=[
         ("s","Success"),
         ("E","Error"),
         ("P","Pending")
-    }
+    ]
 
     code = models.CharField(max_length=2000)
     language = models.CharField(max_length=100)
