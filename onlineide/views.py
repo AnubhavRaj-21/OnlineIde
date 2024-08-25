@@ -10,6 +10,8 @@ from .serializers import SubmissionSerializers , UserSerializers
 from .utils import create_code_file, execute_file
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.views import LoginView as KnoxLoginView
+import multiprocessing as mp
+
 
 
 def hello_world(request):
@@ -64,9 +66,20 @@ class SubmissionsViewSet(ModelViewSet):
         file_name = create_code_file(request.data.get("code"),request.data.get("language"))
         # below we are executing the file before saving it.It may cause blockage as may be the file
         # take way more time to execute while others request are still pending
-        #what we can do is we called a child proccess and hence won't block the API
-        output = execute_file(file_name,request.data.get("language"))
-        request.data["output"] = output
-        return super().create(request,args,kwargs)
+        # what we can do is we called a child proccess and hence won't block the API
+        # output = execute_file(file_name,request.data.get("language"))
+        # request.data["output"] = output
+        # return super().create(request,args,kwargs)
+        serializer = SubmissionSerializers(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        submission = serializer.save()
+
+
+        p = mp.Process(target=execute_file, args=(file_name, request.data.get("language"),submission.pk))
+        p.start()
+
+        return Response({
+            "message": "Submitted successfully"
+        },status=200)
 
 
