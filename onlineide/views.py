@@ -62,6 +62,9 @@ class SubmissionsViewSet(ModelViewSet):
         request.data["status"] = "P"
         request.data["user"] = request.user.pk
         file_name = create_code_file(request.data.get("code"),request.data.get("language"))
+        # below we are executing the file before saving it.It may cause blockage as may be the file
+        # take way more time to execute while others request are still pending
+        #what we can do is we called a child proccess and hence won't block the API
         output = execute_file(file_name,request.data.get("language"))
         request.data["output"] = output
         return super().create(request,args,kwargs)
